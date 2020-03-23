@@ -1,14 +1,14 @@
 package com.kharchenkovitaliy.intouch.ui.main
 
-import android.app.Application
 import android.os.Build
 import androidx.lifecycle.*
 import com.kharchenkovitaliy.intouch.service.ConnectionService
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(app: Application) : AndroidViewModel(app) {
-    private val connectionService = ConnectionService(app)
-
+class MainViewModel @Inject constructor(
+    private val connectionService: ConnectionService
+) : ViewModel() {
     val myService = MutableLiveData<String>()
     val otherServices = MutableLiveData<List<String>>()
 

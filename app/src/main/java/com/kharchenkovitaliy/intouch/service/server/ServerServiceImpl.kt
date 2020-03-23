@@ -5,8 +5,9 @@ import com.kharchenkovitaliy.intouch.shared.tryCatch
 import kotlinx.coroutines.*
 import java.net.ServerSocket
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class ServerServiceImpl : ServerService {
+class ServerServiceImpl @Inject constructor() : ServerService {
     private val dispatcher: ExecutorCoroutineDispatcher =
         Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 

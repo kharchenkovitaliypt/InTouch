@@ -1,8 +1,8 @@
 package com.kharchenkovitaliy.intouch.service
 
-import android.content.Context
 import android.net.nsd.NsdServiceInfo
 import com.kharchenkovitaliy.intouch.service.nsd.*
+import com.kharchenkovitaliy.intouch.service.server.ServerService
 import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.getOrNull
 import com.kharchenkovitaliy.intouch.shared.mapError
@@ -11,12 +11,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import javax.inject.Inject
 import kotlin.random.Random
 
 private typealias ErrorDescription = String
 
-class ConnectionService(context: Context) {
-    private val nsdService = NsdServiceImpl(context.nsdManager)
+class ConnectionService @Inject constructor(
+    private val nsdService: NsdService,
+    private val serverService: ServerService
+) {
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
     private val serviceType = NsdServiceType("_nsdchat._tcp")

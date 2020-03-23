@@ -8,13 +8,14 @@ import com.kharchenkovitaliy.intouch.shared.ThreadChecker
 import com.kharchenkovitaliy.intouch.shared.onSuccess
 import com.kharchenkovitaliy.intouch.shared.success
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import android.net.nsd.NsdManager as NsdManagerImpl
 import android.net.nsd.NsdManager.RegistrationListener as NsdRegistrationListener
 import android.net.nsd.NsdManager.DiscoveryListener as NsdDiscoveryListener
 import android.net.nsd.NsdManager.ResolveListener as NsdResolveListener
 
-class NsdServiceImpl(
+class NsdServiceImpl @Inject constructor(
     private val nsdManager: NsdManager
 ) : NsdService {
     private val threadChecker = ThreadChecker()
@@ -187,4 +188,9 @@ private class ResolveListener(
             onResolveResult(Result.failure(NsdErrorCode(errorCode)))
         }
     }
+}
+
+sealed class DiscoveryEvent {
+    data class ServiceFound(val info: NsdServiceInfo) : DiscoveryEvent()
+    data class ServiceLost(val info: NsdServiceInfo) : DiscoveryEvent()
 }
