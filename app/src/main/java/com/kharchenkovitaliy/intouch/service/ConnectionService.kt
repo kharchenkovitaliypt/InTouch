@@ -46,15 +46,22 @@ class ConnectionService(context: Context) {
     }
 
     private suspend fun registerInternal(name: String): Result<NsdServiceInfo, ErrorDescription> {
+        val port = startServerSocket()
+
         val serviceInfo = NsdServiceInfo().also {
             // The name is subject to change based on conflicts
             // with other services advertised on the same network.
             it.serviceName = name
             it.serviceType = serviceType.value
-            it.port = Random.nextInt(65000)
+            it.port = port
         }
         return nsdService.registerService(serviceInfo)
             .mapError { it.description }
+    }
+
+    private suspend fun startServerSocket(): Int {
+        // TODO Implement ServerSocket(0)
+        return Random.nextInt(65000)
     }
 
     suspend fun unregister() {
