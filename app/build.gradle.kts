@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -39,7 +37,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
-
+androidExtensions {
+    isExperimental = true
+}
 kotlin {
     sourceSets.all {
         languageSettings.apply {
@@ -48,6 +48,9 @@ kotlin {
             useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
         }
     }
+}
+kapt {
+    correctErrorTypes = true
 }
 
 dependencies {
@@ -70,6 +73,10 @@ dependencies {
     implementation("com.google.dagger:dagger-android-support:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
+
+    val epoxyVersion = "3.9.0"
+    implementation("com.airbnb.android:epoxy:$epoxyVersion")
+    kapt("com.airbnb.android:epoxy-processor:$epoxyVersion")
 
     testImplementation("junit:junit:4.13")
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
