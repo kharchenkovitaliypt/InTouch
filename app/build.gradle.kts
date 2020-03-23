@@ -32,6 +32,11 @@ android {
             "-XXLanguage:+InlineClasses",
             "-Xopt-in=kotlin.RequiresOptIn"
         )
+        jvmTarget = "1.8"
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
@@ -54,8 +59,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    implementation("androidx.fragment:fragment-ktx:1.1.0")
-//    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.fragment:fragment-ktx:1.2.3")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5")
