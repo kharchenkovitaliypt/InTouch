@@ -46,6 +46,7 @@ kotlin {
             progressiveMode = true
             useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
             useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
+            useExperimentalAnnotation("kotlinx.coroutines.FlowPreview")
         }
     }
 }

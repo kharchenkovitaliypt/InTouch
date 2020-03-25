@@ -4,20 +4,24 @@ import android.os.Build
 import androidx.lifecycle.*
 import com.kharchenkovitaliy.intouch.model.Peer
 import com.kharchenkovitaliy.intouch.service.PeerService
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val peerService: PeerService
 ) : ViewModel() {
-    val myService = MutableLiveData<String>()
+    val serverServiceLiveData: LiveData<String> = liveData {
+        peerService.serverServiceFlow
+            .map { it?.serviceName ?: "????" }
+            .collect(::emit)
+    }
     val peersLiveData = MutableLiveData<List<Peer>>()
 
     fun register() {
         viewModelScope.launch {
-            peerService.register(Build.DEVICE) { service ->
-                myService.value = service?.serviceName ?: "????"
-            }
+            peerService.startServer(Build.DEVICE)
         }
     }
 

@@ -26,7 +26,7 @@ class MainActivity : DaggerAppCompatActivity() {
         )
         peers.setController(peerAdapter)
 
-        viewModel.myService.observe(this, Observer { service ->
+        viewModel.serverServiceLiveData.observe(this, Observer { service ->
             this.name.text = service
         })
         viewModel.peersLiveData.observe(this, Observer { peers ->
