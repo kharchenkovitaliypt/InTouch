@@ -4,7 +4,7 @@ import android.net.nsd.NsdManager.DiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener
 import android.net.nsd.NsdServiceInfo
 
-inline class NsdServiceType(val value: String)
+class NsdServiceType(val value: String)
 
 interface NsdManager {
     fun registerService(serviceInfo: NsdServiceInfo, listener: RegistrationListener)

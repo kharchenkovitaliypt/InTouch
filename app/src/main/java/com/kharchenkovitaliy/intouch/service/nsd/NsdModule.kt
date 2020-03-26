@@ -11,4 +11,7 @@ import dagger.Provides
 
     @AppScope
     @Provides fun nsdService(service: NsdServiceImpl): NsdService = service
+
+    @AppScope
+    @Provides fun nsdServiceType() = NsdServiceType("_nsd_touch._tcp")
 }

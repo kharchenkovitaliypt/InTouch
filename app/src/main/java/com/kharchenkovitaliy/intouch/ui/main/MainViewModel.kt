@@ -1,49 +1,53 @@
 package com.kharchenkovitaliy.intouch.ui.main
 
 import android.os.Build
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.kharchenkovitaliy.intouch.model.Peer
-import com.kharchenkovitaliy.intouch.service.PeerService
+import com.kharchenkovitaliy.intouch.service.PeerDiscoveryService
+import com.kharchenkovitaliy.intouch.service.PeerServerService
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    private val peerService: PeerService
+    private val peerServerService: PeerServerService,
+    private val peerDiscoveryService: PeerDiscoveryService
 ) : ViewModel() {
-    val serverServiceLiveData: LiveData<String> = liveData {
-        peerService.serverServiceFlow
+    val serverLiveData: LiveData<String> = liveData {
+        peerServerService.serviceFlow
             .map { it?.serviceName ?: "????" }
             .collect(::emit)
     }
-    val peersLiveData = MutableLiveData<List<Peer>>()
+    val peersLiveData: LiveData<List<Peer>> = liveData {
+        peerDiscoveryService.peersFlow
+            .collect(::emit)
+    }
 
-    fun register() {
+    fun startServer() {
         viewModelScope.launch {
-            peerService.startServer(Build.DEVICE)
+            peerServerService.start(Build.DEVICE)
         }
     }
 
-    fun unregister() {
+    fun stopServer() {
         viewModelScope.launch {
-            peerService.unregister()
+            peerServerService.stop()
         }
     }
 
     fun startDiscovery() {
         viewModelScope.launch {
-            peerService.startDiscover(
-                onPeersChanged = { peers ->
-                    peersLiveData.value = peers
-                }
-            )
+            peerDiscoveryService.start()
         }
     }
 
     fun stopDiscovery() {
         viewModelScope.launch {
-            peerService.stopDiscovery()
+            peerDiscoveryService.stop()
         }
     }
 }

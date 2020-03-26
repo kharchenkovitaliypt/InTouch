@@ -3,16 +3,14 @@ package com.kharchenkovitaliy.intouch.service.nsd
 import android.net.nsd.NsdServiceInfo
 import android.os.Handler
 import android.os.Looper
-import com.kharchenkovitaliy.intouch.shared.Result
-import com.kharchenkovitaliy.intouch.shared.ThreadChecker
-import com.kharchenkovitaliy.intouch.shared.onSuccess
-import com.kharchenkovitaliy.intouch.shared.success
+import com.kharchenkovitaliy.intouch.shared.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import android.net.nsd.NsdManager as NsdManagerImpl
-import android.net.nsd.NsdManager.RegistrationListener as NsdRegistrationListener
 import android.net.nsd.NsdManager.DiscoveryListener as NsdDiscoveryListener
+import android.net.nsd.NsdManager.RegistrationListener as NsdRegistrationListener
 import android.net.nsd.NsdManager.ResolveListener as NsdResolveListener
 
 class NsdServiceImpl @Inject constructor(
@@ -51,17 +49,10 @@ class NsdServiceImpl @Inject constructor(
             nsdManager.unregisterService(listener)
         }
 
-    override suspend fun startDiscovery(
-        serviceType: NsdServiceType,
-        onServiceFound: (NsdServiceInfo) -> Unit,
-        onServiceLost: (NsdServiceInfo) -> Unit
-    ): Result<Unit, NsdErrorCode> =
+    override suspend fun startDiscovery(serviceType: NsdServiceType): Result<Flow<ServiceEvent>, NsdErrorCode> =
         suspendCancellableCoroutine { cont ->
             threadChecker.check()
-            val listener = DiscoveryListener(
-                onServiceFound = onServiceFound,
-                onServiceLost = onServiceLost
-            )
+            val listener = DiscoveryListener()
             listener.onStartDiscoveryResult = { result ->
                 cont.resume(result)
             }
@@ -125,19 +116,18 @@ private class RegistrationListener : NsdRegistrationListener {
     }
 }
 
-private class DiscoveryListener(
-    private val onServiceFound: (NsdServiceInfo) -> Unit,
-    private val onServiceLost: (NsdServiceInfo) -> Unit
-) : NsdDiscoveryListener {
+private class DiscoveryListener() : NsdDiscoveryListener {
     private val uiHandler = Handler(Looper.getMainLooper())
 
-    var onStartDiscoveryResult: ((Result<Unit, NsdErrorCode>) -> Unit)? = null
+    var onStartDiscoveryResult: ((Result<Flow<ServiceEvent>, NsdErrorCode>) -> Unit)? = null
     var onStopDiscoveryResult: ((Result<Unit, NsdErrorCode>) -> Unit)? = null
+
+    private val channelFlow = ChannelFlow<ServiceEvent>()
 
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {
         uiHandler.post {
-            onStartDiscoveryResult!!(Result.success())
+            onStartDiscoveryResult!!(Result.success(channelFlow))
         }
     }
 
@@ -147,15 +137,15 @@ private class DiscoveryListener(
         }
     }
 
-    override fun onServiceFound(serviceInfo: NsdServiceInfo) {
+    override fun onServiceFound(service: NsdServiceInfo) {
         uiHandler.post {
-            onServiceFound.invoke(serviceInfo)
+            channelFlow.offer(ServiceEvent.Found(service))
         }
     }
 
-    override fun onServiceLost(serviceInfo: NsdServiceInfo) {
+    override fun onServiceLost(service: NsdServiceInfo) {
         uiHandler.post {
-            onServiceLost.invoke(serviceInfo)
+            channelFlow.offer(ServiceEvent.Lost(service))
         }
     }
 

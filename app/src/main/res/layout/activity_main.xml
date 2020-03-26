@@ -18,25 +18,25 @@
         />
 
     <Button
-        android:id="@+id/register"
+        android:id="@+id/startServer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Register"
+        android:text="Start server"
         app:layout_constraintTop_toBottomOf="@id/name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         />
 
     <Button
-        android:id="@+id/unregister"
+        android:id="@+id/stopServer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:text="Unregister"
-        app:layout_constraintTop_toTopOf="@id/register"
-        app:layout_constraintBottom_toBottomOf="@id/register"
-        app:layout_constraintStart_toEndOf="@id/register"
+        android:text="Stop server"
+        app:layout_constraintTop_toTopOf="@id/startServer"
+        app:layout_constraintBottom_toBottomOf="@id/startServer"
+        app:layout_constraintStart_toEndOf="@id/startServer"
         app:layout_constraintEnd_toEndOf="parent"
         />
 
@@ -48,7 +48,7 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/register"
+        app:layout_constraintTop_toBottomOf="@id/startServer"
         android:background="#898485"
         />
 
@@ -68,7 +68,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:gravity="center_horizontal"
         android:text="Stop discover"
         app:layout_constraintTop_toTopOf="@id/startDiscover"
         app:layout_constraintBottom_toBottomOf="@id/startDiscover"
@@ -84,6 +83,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_peer"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

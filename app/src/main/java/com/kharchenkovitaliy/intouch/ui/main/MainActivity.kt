@@ -26,18 +26,18 @@ class MainActivity : DaggerAppCompatActivity() {
         )
         peers.setController(peerAdapter)
 
-        viewModel.serverServiceLiveData.observe(this, Observer { service ->
+        viewModel.serverLiveData.observe(this, Observer { service ->
             this.name.text = service
         })
         viewModel.peersLiveData.observe(this, Observer { peers ->
             peerAdapter.setData(peers)
         })
 
-        register.setOnClickListener {
-            viewModel.register()
+        startServer.setOnClickListener {
+            viewModel.startServer()
         }
-        unregister.setOnClickListener {
-            viewModel.unregister()
+        stopServer.setOnClickListener {
+            viewModel.stopServer()
         }
 
         startDiscover.setOnClickListener {

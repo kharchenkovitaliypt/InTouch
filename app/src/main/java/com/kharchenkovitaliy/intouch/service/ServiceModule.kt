@@ -16,4 +16,10 @@ object ServiceModule {
 
     @AppScope
     @Provides fun errorService(): ErrorService = ErrorService()
+
+    @AppScope
+    @Provides fun peerServerService(service: PeerServerServiceImpl): PeerServerService = service
+
+    @AppScope
+    @Provides fun peerDiscoveryService(service: PeerDiscoveryServiceImpl): PeerDiscoveryService = service
 }
