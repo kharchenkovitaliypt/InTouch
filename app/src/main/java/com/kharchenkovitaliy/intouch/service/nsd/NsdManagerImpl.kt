@@ -10,8 +10,8 @@ internal val Context.nsdManager: NsdManager
 
 private fun NsdManagerImpl.asNsdManager(): NsdManager =
     object : NsdManager {
-        override fun registerService(serviceInfo: NsdServiceInfo, listener: RegistrationListener) {
-            this@asNsdManager.registerService(serviceInfo, PROTOCOL_DNS_SD, listener)
+        override fun registerService(service: NsdServiceInfo, listener: RegistrationListener) {
+            this@asNsdManager.registerService(service, PROTOCOL_DNS_SD, listener)
         }
         override fun unregisterService(listener: RegistrationListener) {
             this@asNsdManager.unregisterService(listener)
@@ -22,5 +22,9 @@ private fun NsdManagerImpl.asNsdManager(): NsdManager =
         }
         override fun stopServiceDiscovery(listener: DiscoveryListener) {
             this@asNsdManager.stopServiceDiscovery(listener)
+        }
+
+        override fun resolveService(service: NsdServiceInfo, listener: ResolveListener) {
+            this@asNsdManager.resolveService(service, listener)
         }
     }

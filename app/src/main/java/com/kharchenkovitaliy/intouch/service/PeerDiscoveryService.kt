@@ -12,7 +12,6 @@ import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.map
 import com.kharchenkovitaliy.intouch.shared.mapError
 import com.kharchenkovitaliy.intouch.shared.onSuccess
-import kotlinx.coroutines.channels.BroadcastChannel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import javax.inject.Inject
@@ -27,28 +26,29 @@ class PeerDiscoveryServiceImpl @Inject constructor(
     private val serviceType: NsdServiceType,
     private val nsdService: NsdService
 ) : PeerDiscoveryService {
-    private val eventChannel: BroadcastChannel<Flow<ServiceEvent>?> = ConflatedBroadcastChannel(null)
 
-    override val peersFlow: Flow<List<Peer>> = eventChannel.asFlow()
+    private val serviceEventChannel = ConflatedBroadcastChannel<Flow<ServiceEvent>?>(null)
+    override val peersFlow: Flow<List<Peer>> = serviceEventChannel.asFlow()
         .flatMapLatest { flow ->
-            flow?.scan(emptyList(), ::process)
-                ?: flowOf(emptyList())
+            flow?.scanPeers() ?: flowOf(emptyList())
         }
 
-    private suspend fun process(list: List<Peer>, event: ServiceEvent): List<Peer> =
-        when (event) {
-            is ServiceEvent.Found -> {
-                list + event.service.toPeer()
-            }
-            is ServiceEvent.Lost -> {
-                list - event.service.toPeer()
+    private fun Flow<ServiceEvent>.scanPeers(): Flow<List<Peer>> =
+        scan(emptyList()) { list: List<Peer>, event: ServiceEvent ->
+            when (event) {
+                is ServiceEvent.Found -> {
+                    list + event.service.toPeer()
+                }
+                is ServiceEvent.Lost -> {
+                    list - event.service.toPeer()
+                }
             }
         }
 
     override suspend fun start(): Result<Unit, ErrorDescription> =
         nsdService.startDiscovery(serviceType)
             .onSuccess { events ->
-                eventChannel.offer(events)
+                serviceEventChannel.offer(events)
             }
             .map { Unit }
             .mapError { it.description }
@@ -57,7 +57,7 @@ class PeerDiscoveryServiceImpl @Inject constructor(
         nsdService.stopDiscovery(serviceType)
             .mapError { it.description }
             .also {
-                eventChannel.offer(null)
+                serviceEventChannel.offer(null)
             }
 }
 
