@@ -28,7 +28,7 @@ class PeerServerServiceImpl @Inject constructor(
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
-    override val serviceFlow = ChannelFlow<NsdServiceInfo?>(null)
+    override val serviceFlow = StatefulChannelFlow<NsdServiceInfo?>(null)
 
     override suspend fun start(name: String): Result<Unit, ErrorDescription> =
         withContext(dispatcher) {

@@ -34,16 +34,7 @@ class PeerDiscoveryServiceImpl @Inject constructor(
         }
 
     private fun Flow<ServiceEvent>.scanPeers(): Flow<List<Peer>> =
-        scan(emptyList()) { list: List<Peer>, event: ServiceEvent ->
-            when (event) {
-                is ServiceEvent.Found -> {
-                    list + event.service.toPeer()
-                }
-                is ServiceEvent.Lost -> {
-                    list - event.service.toPeer()
-                }
-            }
-        }
+        map { it.allServices.map(NsdServiceInfo::toPeer) }
 
     override suspend fun start(): Result<Unit, ErrorDescription> =
         nsdService.startDiscovery(serviceType)

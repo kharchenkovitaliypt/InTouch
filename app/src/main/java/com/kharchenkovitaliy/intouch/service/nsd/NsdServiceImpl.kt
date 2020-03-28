@@ -102,7 +102,8 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     val startDiscoveryResult = CompletableDeferred<Result<Flow<ServiceEvent>, NsdErrorCode>>()
     var stopDiscoveryResult = CompletableDeferred<Result<Unit, NsdErrorCode>>()
 
-    private val channelFlow = ChannelFlow<ServiceEvent>()
+    private val servicesRef = AtomicRef(emptyList<NsdServiceInfo>())
+    private val channelFlow = StatefulChannelFlow<ServiceEvent>()
 
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {
@@ -116,11 +117,18 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
-        channelFlow.offer(ServiceEvent.Found(service))
+        val services = servicesRef.updateAndGetCompat { list ->
+            list + service
+        }
+        channelFlow.offer(ServiceEvent.Found(service, services))
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
-        channelFlow.offer(ServiceEvent.Lost(service))
+        val services = servicesRef.updateAndGetCompat { list ->
+            list.find(service::isSame)
+                ?.let { list - it }
+        }
+        channelFlow.offer(ServiceEvent.Lost(service, services))
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
@@ -132,6 +140,10 @@ private class DiscoveryCallback : NsdDiscoveryListener {
             Result.failure(NsdErrorCode(errorCode)))
     }
 }
+
+fun NsdServiceInfo.isSame(service: NsdServiceInfo): Boolean =
+    serviceType == service.serviceType
+            && serviceName == service.serviceName
 
 private class ResolveCallback : NsdResolveListener {
     val resolveResult = CompletableDeferred<Result<NsdServiceInfo, NsdErrorCode>>()

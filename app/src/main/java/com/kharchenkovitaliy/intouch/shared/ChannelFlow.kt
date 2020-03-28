@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.asFlow
 
 interface ChannelFlow<E> : SendChannel<E>, Flow<E>
 
-fun <E> ChannelFlow(): ChannelFlow<E> =
+fun <E> StatefulChannelFlow(): ChannelFlow<E> =
     ConflatedBroadcastChannel<E>().asChannelFlow()
 
-fun <E> ChannelFlow(elem: E): ChannelFlow<E> =
+fun <E> StatefulChannelFlow(elem: E): ChannelFlow<E> =
     ConflatedBroadcastChannel(elem).asChannelFlow()
 
 private fun <E> BroadcastChannel<E>.asChannelFlow(): ChannelFlow<E> {

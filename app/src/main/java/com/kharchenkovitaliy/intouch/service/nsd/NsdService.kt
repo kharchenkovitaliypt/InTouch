@@ -14,9 +14,16 @@ interface NsdService {
     suspend fun resolveService(service: NsdServiceInfo): Result<NsdServiceInfo, NsdErrorCode>
 }
 
-sealed class ServiceEvent {
-    data class Found(val service: NsdServiceInfo) : ServiceEvent()
-    data class Lost(val service: NsdServiceInfo) : ServiceEvent()
+sealed class ServiceEvent(open val allServices: List<NsdServiceInfo>) {
+    data class Found(
+        val service: NsdServiceInfo,
+        override val allServices: List<NsdServiceInfo>
+    ) : ServiceEvent(allServices)
+
+    data class Lost(
+        val service: NsdServiceInfo,
+        override val allServices: List<NsdServiceInfo>
+    ) : ServiceEvent(allServices)
 }
 
 
