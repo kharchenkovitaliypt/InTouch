@@ -7,10 +7,10 @@ import dagger.Provides
 
 @Module object NsdModule {
     @AppScope
-    @Provides fun nsdManager(context: Context): NsdManager = context.nsdManager
-
-    @AppScope
-    @Provides fun nsdService(service: NsdServiceImpl): NsdService = service
+    @Provides fun nsdService(context: Context): NsdService {
+        val nsdManager = context.nsdManager
+        return NsdServiceImpl(nsdManager)
+    }
 
     @AppScope
     @Provides fun nsdServiceType() = NsdServiceType("_nsd_touch._tcp")

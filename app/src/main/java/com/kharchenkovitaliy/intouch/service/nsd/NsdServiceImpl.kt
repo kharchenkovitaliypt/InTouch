@@ -2,8 +2,17 @@ package com.kharchenkovitaliy.intouch.service.nsd
 
 import android.net.nsd.NsdServiceInfo
 import com.kharchenkovitaliy.intouch.shared.*
+import com.kharchenkovitaliy.intouch.shared.collection.copy
+import com.kharchenkovitaliy.intouch.shared.collection.removeFirst
+import com.kharchenkovitaliy.intouch.shared.coroutines.SerialCoroutineDispatcher
+import com.kharchenkovitaliy.intouch.shared.coroutines.StatefulChannelFlow
+import com.kharchenkovitaliy.intouch.shared.coroutines.invokeOnCancellation
+import com.kharchenkovitaliy.intouch.shared.coroutines.job
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import android.net.nsd.NsdManager.DiscoveryListener as NsdDiscoveryListener
@@ -11,10 +20,9 @@ import android.net.nsd.NsdManager.RegistrationListener as NsdRegistrationListene
 import android.net.nsd.NsdManager.ResolveListener as NsdResolveListener
 
 class NsdServiceImpl @Inject constructor(
-    private val nsdManager: NsdManager
+    private val nsdManager: NsdManager,
+    private val dispatcher: CoroutineDispatcher = SerialCoroutineDispatcher()
 ) : NsdService {
-    private val dispatcher = SerialCoroutineDispatcher()
-
     private val registrationCallbacks = mutableMapOf<NsdServiceInfo, RegistrationCallback>()
     private val discoveryCallbacks = mutableMapOf<NsdServiceType, DiscoveryCallback>()
 
@@ -55,7 +63,40 @@ class NsdServiceImpl @Inject constructor(
                 .onSuccess {
                     discoveryCallbacks[serviceType] = callback
                 }
+                .map { flow -> flow.resolveFoundService() }
         }
+
+    private fun Flow<ServiceEvent>.resolveFoundService(): Flow<ServiceEvent> =
+        scan(null as ServiceEvent?) { acc: ServiceEvent?, event: ServiceEvent ->
+            if (acc == null) {
+                event.resolveAllServices()
+            } else {
+                when (event) {
+                    is ServiceEvent.Found -> event.resolveService() ?: acc // Ignore unresolved services
+                    is ServiceEvent.Lost -> event
+                }
+            }
+        }.filterNotNull()
+
+    private suspend fun ServiceEvent.resolveAllServices(): ServiceEvent {
+        val allResolvedServices = allServices.mapNotNull { service ->
+            resolveService(service).getOrNull()
+        }
+        val resolvedService = allResolvedServices.first(service::isSame)
+        return when (this) {
+            is ServiceEvent.Found -> ServiceEvent.Found(resolvedService, allResolvedServices)
+            is ServiceEvent.Lost -> ServiceEvent.Lost(resolvedService, allResolvedServices)
+        }
+    }
+
+    private suspend fun ServiceEvent.Found.resolveService(): ServiceEvent.Found? {
+        val resolvedService = resolveService(service)
+            .getOrElse { return null }
+        val allResolvedServices = allServices.copy {
+            service::isSame replaceOn resolvedService
+        }
+        return ServiceEvent.Found(resolvedService, allResolvedServices)
+    }
 
     override suspend fun stopDiscovery(serviceType: NsdServiceType): Result<Unit, NsdErrorCode> =
         withContext(dispatcher) {
@@ -103,12 +144,12 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     var stopDiscoveryResult = CompletableDeferred<Result<Unit, NsdErrorCode>>()
 
     private val servicesRef = AtomicRef(emptyList<NsdServiceInfo>())
-    private val channelFlow = StatefulChannelFlow<ServiceEvent>()
+    private val serviceEventFlow = StatefulChannelFlow<ServiceEvent>()
 
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {
         startDiscoveryResult.complete(
-            Result.success(channelFlow))
+            Result.success(serviceEventFlow))
     }
 
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
@@ -120,15 +161,14 @@ private class DiscoveryCallback : NsdDiscoveryListener {
         val services = servicesRef.updateAndGetCompat { list ->
             list + service
         }
-        channelFlow.offer(ServiceEvent.Found(service, services))
+        serviceEventFlow.offer(ServiceEvent.Found(service, services))
     }
 
     override fun onServiceLost(service: NsdServiceInfo) {
         val services = servicesRef.updateAndGetCompat { list ->
-            list.find(service::isSame)
-                ?.let { list - it }
+            list.removeFirst(service::isSame)
         }
-        channelFlow.offer(ServiceEvent.Lost(service, services))
+        serviceEventFlow.offer(ServiceEvent.Lost(service, services))
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
@@ -140,10 +180,6 @@ private class DiscoveryCallback : NsdDiscoveryListener {
             Result.failure(NsdErrorCode(errorCode)))
     }
 }
-
-fun NsdServiceInfo.isSame(service: NsdServiceInfo): Boolean =
-    serviceType == service.serviceType
-            && serviceName == service.serviceName
 
 private class ResolveCallback : NsdResolveListener {
     val resolveResult = CompletableDeferred<Result<NsdServiceInfo, NsdErrorCode>>()

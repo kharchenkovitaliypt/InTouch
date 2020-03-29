@@ -7,6 +7,7 @@ import com.kharchenkovitaliy.intouch.service.nsd.description
 import com.kharchenkovitaliy.intouch.service.server.ServerService
 import com.kharchenkovitaliy.intouch.service.shared.ErrorDescription
 import com.kharchenkovitaliy.intouch.shared.*
+import com.kharchenkovitaliy.intouch.shared.coroutines.StatefulChannelFlow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +29,10 @@ class PeerServerServiceImpl @Inject constructor(
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
-    override val serviceFlow = StatefulChannelFlow<NsdServiceInfo?>(null)
+    override val serviceFlow =
+        StatefulChannelFlow<NsdServiceInfo?>(
+            null
+        )
 
     override suspend fun start(name: String): Result<Unit, ErrorDescription> =
         withContext(dispatcher) {

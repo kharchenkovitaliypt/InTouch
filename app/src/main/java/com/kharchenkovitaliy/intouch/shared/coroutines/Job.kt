@@ -1,4 +1,4 @@
-package com.kharchenkovitaliy.intouch.shared
+package com.kharchenkovitaliy.intouch.shared.coroutines
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.DisposableHandle

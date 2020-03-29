@@ -44,6 +44,7 @@ kotlin {
     sourceSets.all {
         languageSettings.apply {
             progressiveMode = true
+            useExperimentalAnnotation("kotlin.ExperimentalStdlibApi")
             useExperimentalAnnotation("kotlinx.coroutines.ExperimentalCoroutinesApi")
             useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
             useExperimentalAnnotation("kotlinx.coroutines.FlowPreview")
@@ -81,6 +82,10 @@ dependencies {
 
     testImplementation("junit:junit:4.13")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+
+    val mockitoVersion = "3.3.3"
+    testImplementation("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
     androidTestImplementation("androidx.test.ext:junit:1.1.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
