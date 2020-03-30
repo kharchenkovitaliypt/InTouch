@@ -1,13 +1,21 @@
 package com.kharchenkovitaliy.intouch.service.nsd
 
 import android.net.nsd.NsdServiceInfo
-import com.kharchenkovitaliy.intouch.shared.*
+import android.util.Log
+import com.kharchenkovitaliy.intouch.shared.AtomicRef
+import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.collection.copy
 import com.kharchenkovitaliy.intouch.shared.collection.removeFirst
+import com.kharchenkovitaliy.intouch.shared.coroutines.ConflatedChannelFlow
 import com.kharchenkovitaliy.intouch.shared.coroutines.SerialCoroutineDispatcher
-import com.kharchenkovitaliy.intouch.shared.coroutines.StatefulChannelFlow
 import com.kharchenkovitaliy.intouch.shared.coroutines.invokeOnCancellation
 import com.kharchenkovitaliy.intouch.shared.coroutines.job
+import com.kharchenkovitaliy.intouch.shared.getOrElse
+import com.kharchenkovitaliy.intouch.shared.getOrNull
+import com.kharchenkovitaliy.intouch.shared.map
+import com.kharchenkovitaliy.intouch.shared.onSuccess
+import com.kharchenkovitaliy.intouch.shared.success
+import com.kharchenkovitaliy.intouch.shared.updateAndGetCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -19,10 +27,10 @@ import android.net.nsd.NsdManager.DiscoveryListener as NsdDiscoveryListener
 import android.net.nsd.NsdManager.RegistrationListener as NsdRegistrationListener
 import android.net.nsd.NsdManager.ResolveListener as NsdResolveListener
 
-class NsdServiceImpl @Inject constructor(
+class CoroutineNsdManagerImpl @Inject constructor(
     private val nsdManager: NsdManager,
     private val dispatcher: CoroutineDispatcher = SerialCoroutineDispatcher()
-) : NsdService {
+) : CoroutineNsdManager {
     private val registrationCallbacks = mutableMapOf<NsdServiceInfo, RegistrationCallback>()
     private val discoveryCallbacks = mutableMapOf<NsdServiceType, DiscoveryCallback>()
 
@@ -82,6 +90,8 @@ class NsdServiceImpl @Inject constructor(
         val allResolvedServices = allServices.mapNotNull { service ->
             resolveService(service).getOrNull()
         }
+        Log.e("TAG", "service: ${service.serviceType +"?" + service.serviceName}")
+        Log.e("TAG", "allResolvedServices: ${allResolvedServices.joinToString("\n") { it.serviceType +"?" + it.serviceName }}")
         val resolvedService = allResolvedServices.first(service::isSame)
         return when (this) {
             is ServiceEvent.Found -> ServiceEvent.Found(resolvedService, allResolvedServices)
@@ -144,7 +154,7 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     var stopDiscoveryResult = CompletableDeferred<Result<Unit, NsdErrorCode>>()
 
     private val servicesRef = AtomicRef(emptyList<NsdServiceInfo>())
-    private val serviceEventFlow = StatefulChannelFlow<ServiceEvent>()
+    private val serviceEventFlow = ConflatedChannelFlow<ServiceEvent>()
 
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {

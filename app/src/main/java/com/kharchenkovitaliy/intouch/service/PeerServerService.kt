@@ -1,13 +1,17 @@
 package com.kharchenkovitaliy.intouch.service
 
 import android.net.nsd.NsdServiceInfo
-import com.kharchenkovitaliy.intouch.service.nsd.NsdService
+import com.kharchenkovitaliy.intouch.service.nsd.CoroutineNsdManager
 import com.kharchenkovitaliy.intouch.service.nsd.NsdServiceType
 import com.kharchenkovitaliy.intouch.service.nsd.description
 import com.kharchenkovitaliy.intouch.service.server.ServerService
 import com.kharchenkovitaliy.intouch.service.shared.ErrorDescription
-import com.kharchenkovitaliy.intouch.shared.*
-import com.kharchenkovitaliy.intouch.shared.coroutines.StatefulChannelFlow
+import com.kharchenkovitaliy.intouch.shared.Result
+import com.kharchenkovitaliy.intouch.shared.coroutines.ConflatedChannelFlow
+import com.kharchenkovitaliy.intouch.shared.getOrElse
+import com.kharchenkovitaliy.intouch.shared.map
+import com.kharchenkovitaliy.intouch.shared.mapError
+import com.kharchenkovitaliy.intouch.shared.onSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -23,16 +27,13 @@ interface PeerServerService {
 
 class PeerServerServiceImpl @Inject constructor(
     private val serviceType: NsdServiceType,
-    private val nsdService: NsdService,
+    private val nsdService: CoroutineNsdManager,
     private val serverService: ServerService,
     private val errorService: ErrorService
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
-    override val serviceFlow =
-        StatefulChannelFlow<NsdServiceInfo?>(
-            null
-        )
+    override val serviceFlow = ConflatedChannelFlow<NsdServiceInfo?>(null)
 
     override suspend fun start(name: String): Result<Unit, ErrorDescription> =
         withContext(dispatcher) {

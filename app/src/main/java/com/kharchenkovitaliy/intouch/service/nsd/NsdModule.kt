@@ -7,9 +7,9 @@ import dagger.Provides
 
 @Module object NsdModule {
     @AppScope
-    @Provides fun nsdService(context: Context): NsdService {
+    @Provides fun nsdService(context: Context): CoroutineNsdManager {
         val nsdManager = context.nsdManager
-        return NsdServiceImpl(nsdManager)
+        return CoroutineNsdManagerImpl(nsdManager)
     }
 
     @AppScope

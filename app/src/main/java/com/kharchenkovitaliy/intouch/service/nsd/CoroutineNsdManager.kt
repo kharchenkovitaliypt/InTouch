@@ -4,7 +4,7 @@ import android.net.nsd.NsdServiceInfo
 import com.kharchenkovitaliy.intouch.shared.Result
 import kotlinx.coroutines.flow.Flow
 
-interface NsdService {
+interface CoroutineNsdManager {
     suspend fun registerService(service: NsdServiceInfo): Result<NsdServiceInfo, NsdErrorCode>
     suspend fun unregisterService(freshService: NsdServiceInfo): Result<Unit, NsdErrorCode>
 

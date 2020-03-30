@@ -3,7 +3,7 @@ package com.kharchenkovitaliy.intouch.service
 import android.net.nsd.NsdServiceInfo
 import com.kharchenkovitaliy.intouch.model.Peer
 import com.kharchenkovitaliy.intouch.model.PeerId
-import com.kharchenkovitaliy.intouch.service.nsd.NsdService
+import com.kharchenkovitaliy.intouch.service.nsd.CoroutineNsdManager
 import com.kharchenkovitaliy.intouch.service.nsd.NsdServiceType
 import com.kharchenkovitaliy.intouch.service.nsd.ServiceEvent
 import com.kharchenkovitaliy.intouch.service.nsd.description
@@ -13,7 +13,11 @@ import com.kharchenkovitaliy.intouch.shared.map
 import com.kharchenkovitaliy.intouch.shared.mapError
 import com.kharchenkovitaliy.intouch.shared.onSuccess
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.scan
 import javax.inject.Inject
 
 interface PeerDiscoveryService {
@@ -24,7 +28,7 @@ interface PeerDiscoveryService {
 
 class PeerDiscoveryServiceImpl @Inject constructor(
     private val serviceType: NsdServiceType,
-    private val nsdService: NsdService
+    private val nsdService: CoroutineNsdManager
 ) : PeerDiscoveryService {
 
     private val serviceEventChannel = ConflatedBroadcastChannel<Flow<ServiceEvent>?>(null)

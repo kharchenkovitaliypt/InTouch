@@ -1,6 +1,6 @@
 package com.kharchenkovitaliy.intouch.shared
 
-import com.kharchenkovitaliy.intouch.shared.coroutines.StatefulChannelFlow
+import com.kharchenkovitaliy.intouch.shared.coroutines.ChannelFlow
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
@@ -11,7 +11,7 @@ class ChannelFlowTest {
 
     @Test fun statefulChannelFlow() = runBlockingTest {
         val channelFlow =
-            StatefulChannelFlow<String>()
+            ChannelFlow<String>()
 
         val result1 = async { channelFlow.toList() }
         channelFlow.offer("Hello")
