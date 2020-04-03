@@ -1,14 +1,19 @@
 package com.kharchenkovitaliy.intouch.ui.main
 
 import android.os.Bundle
+import android.view.Gravity
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.widget.PopupMenu
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.kharchenkovitaliy.intouch.R
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
+
 
 class MainActivity : DaggerAppCompatActivity() {
 
@@ -20,8 +25,11 @@ class MainActivity : DaggerAppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         val peerAdapter = PeerAdapter(
-            onPeerClick = { peer ->
-                Toast.makeText(this, peer.toString(), Toast.LENGTH_SHORT).show()
+            onPeerMenuClick = { peer, view ->
+                val popup = PopupMenu(this@MainActivity, view, Gravity.END)
+                popup.menuInflater.inflate(R.menu.peer, popup.menu)
+                popup.setOnMenuItemClickListener { true }
+                popup.show()
             }
         )
         peers.setController(peerAdapter)
@@ -46,5 +54,18 @@ class MainActivity : DaggerAppCompatActivity() {
         stopDiscover.setOnClickListener {
             viewModel.stopDiscovery()
         }
+
+        supportFragmentManager.commit {
+            add(MainFragment(), null)
+        }
+    }
+}
+
+class MainFragment : Fragment() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        Toast.makeText(activity!!, "Hello with activity: ${activity}", Toast.LENGTH_SHORT).show()
     }
 }
