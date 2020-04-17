@@ -7,7 +7,7 @@ import com.kharchenkovitaliy.intouch.service.nsd.description
 import com.kharchenkovitaliy.intouch.service.server.ServerService
 import com.kharchenkovitaliy.intouch.service.shared.ErrorDescription
 import com.kharchenkovitaliy.intouch.shared.Result
-import com.kharchenkovitaliy.intouch.shared.coroutines.ConflatedChannelFlow
+import com.kharchenkovitaliy.intouch.shared.coroutines.DataFlow
 import com.kharchenkovitaliy.intouch.shared.getOrElse
 import com.kharchenkovitaliy.intouch.shared.map
 import com.kharchenkovitaliy.intouch.shared.mapError
@@ -33,7 +33,7 @@ class PeerServerServiceImpl @Inject constructor(
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
-    override val serviceFlow = ConflatedChannelFlow<NsdServiceInfo?>(null)
+    override val serviceFlow = DataFlow<NsdServiceInfo?>(null)
 
     override suspend fun start(name: String): Result<Unit, ErrorDescription> =
         withContext(dispatcher) {

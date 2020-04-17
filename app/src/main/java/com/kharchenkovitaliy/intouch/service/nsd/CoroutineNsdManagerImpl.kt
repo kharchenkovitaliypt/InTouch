@@ -6,7 +6,7 @@ import com.kharchenkovitaliy.intouch.shared.AtomicRef
 import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.collection.copy
 import com.kharchenkovitaliy.intouch.shared.collection.removeFirst
-import com.kharchenkovitaliy.intouch.shared.coroutines.ConflatedChannelFlow
+import com.kharchenkovitaliy.intouch.shared.coroutines.DataFlow
 import com.kharchenkovitaliy.intouch.shared.coroutines.SerialCoroutineDispatcher
 import com.kharchenkovitaliy.intouch.shared.coroutines.invokeOnCancellation
 import com.kharchenkovitaliy.intouch.shared.coroutines.job
@@ -154,7 +154,7 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     var stopDiscoveryResult = CompletableDeferred<Result<Unit, NsdErrorCode>>()
 
     private val servicesRef = AtomicRef(emptyList<NsdServiceInfo>())
-    private val serviceEventFlow = ConflatedChannelFlow<ServiceEvent>()
+    private val serviceEventFlow = DataFlow<ServiceEvent>()
 
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {

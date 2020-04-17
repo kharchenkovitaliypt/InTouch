@@ -1,17 +1,16 @@
 package com.kharchenkovitaliy.intouch.shared
 
-import com.kharchenkovitaliy.intouch.shared.coroutines.ChannelFlow
+import com.kharchenkovitaliy.intouch.shared.coroutines.DataFlow
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ChannelFlowTest {
+class DataFlowTest {
 
-    @Test fun statefulChannelFlow() = runBlockingTest {
-        val channelFlow =
-            ChannelFlow<String>()
+    @Test fun statefulDataFlow() = runBlockingTest {
+        val channelFlow = DataFlow<String>()
 
         val result1 = async { channelFlow.toList() }
         channelFlow.offer("Hello")
