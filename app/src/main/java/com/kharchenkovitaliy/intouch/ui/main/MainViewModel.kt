@@ -8,7 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.kharchenkovitaliy.intouch.model.Peer
 import com.kharchenkovitaliy.intouch.service.PeerDiscoveryService
 import com.kharchenkovitaliy.intouch.service.PeerServerService
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,7 +19,7 @@ class MainViewModel @Inject constructor(
     private val peerServerService: PeerServerService,
     private val peerDiscoveryService: PeerDiscoveryService
 ) : ViewModel() {
-    val serverLiveData: LiveData<String> = liveData {
+    val serverFlow: Flow<String> = flow {
         peerServerService.serviceFlow
             .map { it?.serviceName ?: "????" }
             .collect(::emit)
