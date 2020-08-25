@@ -1,8 +1,11 @@
 package com.kharchenkovitaliy.intouch.service.server
 
-import com.kharchenkovitaliy.intouch.shared.Result
-import com.kharchenkovitaliy.intouch.shared.tryCatch
-import kotlinx.coroutines.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import kotlinx.coroutines.ExecutorCoroutineDispatcher
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 import java.net.ServerSocket
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -15,10 +18,12 @@ class ServerServiceImpl @Inject constructor() : ServerService {
 
     override suspend fun start(): Result<Port, Exception> =
         withContext(dispatcher) {
-            tryCatch {
+            try {
                 val serverSocket = ServerSocket(0)
                 this@ServerServiceImpl.serverSocket = serverSocket
-                Port(serverSocket.localPort)
+                Ok(Port(serverSocket.localPort))
+            } catch (e: Exception) {
+                Err(e)
             }
         }
 

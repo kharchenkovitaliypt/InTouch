@@ -1,17 +1,18 @@
 package com.kharchenkovitaliy.intouch.service
 
 import android.net.nsd.NsdServiceInfo
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onSuccess
 import com.kharchenkovitaliy.intouch.service.nsd.CoroutineNsdManager
 import com.kharchenkovitaliy.intouch.service.nsd.NsdServiceType
 import com.kharchenkovitaliy.intouch.service.nsd.description
 import com.kharchenkovitaliy.intouch.service.server.ServerService
 import com.kharchenkovitaliy.intouch.service.shared.ErrorDescription
-import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.coroutines.DataFlow
-import com.kharchenkovitaliy.intouch.shared.getOrElse
-import com.kharchenkovitaliy.intouch.shared.map
-import com.kharchenkovitaliy.intouch.shared.mapError
-import com.kharchenkovitaliy.intouch.shared.onSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -47,7 +48,7 @@ class PeerServerServiceImpl @Inject constructor(
     private suspend fun startInternal(name: String): Result<NsdServiceInfo, ErrorDescription> {
         val port = serverService.start()
             .mapError(errorService::getDescription)
-            .getOrElse { error -> return Result.failure((error)) }
+            .getOrElse { error -> return Err(error) }
 
         val serviceInfo = NsdServiceInfo().also {
             // The name is subject to change based on conflicts

@@ -1,6 +1,10 @@
 package com.kharchenkovitaliy.intouch.service
 
 import android.net.nsd.NsdServiceInfo
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapError
+import com.github.michaelbull.result.onSuccess
 import com.kharchenkovitaliy.intouch.model.Peer
 import com.kharchenkovitaliy.intouch.model.PeerId
 import com.kharchenkovitaliy.intouch.service.nsd.CoroutineNsdManager
@@ -8,10 +12,6 @@ import com.kharchenkovitaliy.intouch.service.nsd.NsdServiceType
 import com.kharchenkovitaliy.intouch.service.nsd.ServiceEvent
 import com.kharchenkovitaliy.intouch.service.nsd.description
 import com.kharchenkovitaliy.intouch.service.shared.ErrorDescription
-import com.kharchenkovitaliy.intouch.shared.Result
-import com.kharchenkovitaliy.intouch.shared.map
-import com.kharchenkovitaliy.intouch.shared.mapError
-import com.kharchenkovitaliy.intouch.shared.onSuccess
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow

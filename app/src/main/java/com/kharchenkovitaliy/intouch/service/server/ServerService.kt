@@ -1,6 +1,6 @@
 package com.kharchenkovitaliy.intouch.service.server
 
-import com.kharchenkovitaliy.intouch.shared.Result
+import com.github.michaelbull.result.Result
 
 inline class Port(val value: Int)
 

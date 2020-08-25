@@ -1,20 +1,20 @@
 package com.kharchenkovitaliy.intouch.service.nsd
 
 import android.net.nsd.NsdServiceInfo
-import android.util.Log
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.map
+import com.github.michaelbull.result.onSuccess
 import com.kharchenkovitaliy.intouch.shared.AtomicRef
-import com.kharchenkovitaliy.intouch.shared.Result
 import com.kharchenkovitaliy.intouch.shared.collection.copy
 import com.kharchenkovitaliy.intouch.shared.collection.removeFirst
 import com.kharchenkovitaliy.intouch.shared.coroutines.DataFlow
 import com.kharchenkovitaliy.intouch.shared.coroutines.SerialCoroutineDispatcher
 import com.kharchenkovitaliy.intouch.shared.coroutines.invokeOnCancellation
 import com.kharchenkovitaliy.intouch.shared.coroutines.job
-import com.kharchenkovitaliy.intouch.shared.getOrElse
-import com.kharchenkovitaliy.intouch.shared.getOrNull
-import com.kharchenkovitaliy.intouch.shared.map
-import com.kharchenkovitaliy.intouch.shared.onSuccess
-import com.kharchenkovitaliy.intouch.shared.success
 import com.kharchenkovitaliy.intouch.shared.updateAndGetCompat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
@@ -56,7 +56,7 @@ class CoroutineNsdManagerImpl @Inject constructor(
                     nsdManager.unregisterService(callback)
                     callback.unregisterResult.await()
                 }
-                ?: Result.success()
+                ?: Ok(Unit)
         }
 
     override suspend fun startDiscovery(serviceType: NsdServiceType): Result<Flow<ServiceEvent>, NsdErrorCode> =
@@ -88,10 +88,8 @@ class CoroutineNsdManagerImpl @Inject constructor(
 
     private suspend fun ServiceEvent.resolveAllServices(): ServiceEvent {
         val allResolvedServices = allServices.mapNotNull { service ->
-            resolveService(service).getOrNull()
+            resolveService(service).get()
         }
-        Log.e("TAG", "service: ${service.serviceType +"?" + service.serviceName}")
-        Log.e("TAG", "allResolvedServices: ${allResolvedServices.joinToString("\n") { it.serviceType +"?" + it.serviceName }}")
         val resolvedService = allResolvedServices.first(service::isSame)
         return when (this) {
             is ServiceEvent.Found -> ServiceEvent.Found(resolvedService, allResolvedServices)
@@ -115,7 +113,7 @@ class CoroutineNsdManagerImpl @Inject constructor(
                     nsdManager.stopServiceDiscovery(callback)
                     callback.stopDiscoveryResult.await()
                 }
-                ?: Result.success()
+                ?: Ok(Unit)
         }
 
     override suspend fun resolveService(service: NsdServiceInfo): Result<NsdServiceInfo, NsdErrorCode> =
@@ -131,21 +129,22 @@ private class RegistrationCallback : NsdRegistrationListener {
     val unregisterResult = CompletableDeferred<Result<Unit, NsdErrorCode>>()
 
     override fun onServiceRegistered(service: NsdServiceInfo) {
-        registerResult.complete(Result.success(service))
+        registerResult.complete(Ok(service))
     }
 
     override fun onRegistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         registerResult.complete(
-            Result.failure(NsdErrorCode(errorCode)))
+            Err(NsdErrorCode(errorCode))
+        )
     }
 
     override fun onServiceUnregistered(service: NsdServiceInfo) {
-        unregisterResult.complete(Result.success())
+        unregisterResult.complete(Ok(Unit))
     }
 
     override fun onUnregistrationFailed(service: NsdServiceInfo, errorCode: Int) {
         unregisterResult.complete(
-            Result.failure(NsdErrorCode(errorCode)))
+            Err(NsdErrorCode(errorCode)))
     }
 }
 
@@ -159,12 +158,12 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     // Called as soon as service discovery begins.
     override fun onDiscoveryStarted(regType: String) {
         startDiscoveryResult.complete(
-            Result.success(serviceEventFlow))
+            Ok(serviceEventFlow))
     }
 
     override fun onStartDiscoveryFailed(serviceType: String, errorCode: Int) {
         startDiscoveryResult.complete(
-            Result.failure(NsdErrorCode(errorCode)))
+            Err(NsdErrorCode(errorCode)))
     }
 
     override fun onServiceFound(service: NsdServiceInfo) {
@@ -182,12 +181,12 @@ private class DiscoveryCallback : NsdDiscoveryListener {
     }
 
     override fun onDiscoveryStopped(serviceType: String) {
-        stopDiscoveryResult.complete(Result.success())
+        stopDiscoveryResult.complete(Ok(Unit))
     }
 
     override fun onStopDiscoveryFailed(serviceType: String, errorCode: Int) {
         stopDiscoveryResult.complete(
-            Result.failure(NsdErrorCode(errorCode)))
+            Err(NsdErrorCode(errorCode)))
     }
 }
 
@@ -195,10 +194,10 @@ private class ResolveCallback : NsdResolveListener {
     val resolveResult = CompletableDeferred<Result<NsdServiceInfo, NsdErrorCode>>()
 
     override fun onServiceResolved(serviceInfo: NsdServiceInfo) {
-        resolveResult.complete(Result.success(serviceInfo))
+        resolveResult.complete(Ok(serviceInfo))
     }
 
     override fun onResolveFailed(serviceInfo: NsdServiceInfo, errorCode: Int) {
-        resolveResult.complete(Result.failure(NsdErrorCode(errorCode)))
+        resolveResult.complete(Err(NsdErrorCode(errorCode)))
     }
 }

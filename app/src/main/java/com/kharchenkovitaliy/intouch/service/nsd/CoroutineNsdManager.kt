@@ -1,7 +1,7 @@
 package com.kharchenkovitaliy.intouch.service.nsd
 
 import android.net.nsd.NsdServiceInfo
-import com.kharchenkovitaliy.intouch.shared.Result
+import com.github.michaelbull.result.Result
 import kotlinx.coroutines.flow.Flow
 
 interface CoroutineNsdManager {
