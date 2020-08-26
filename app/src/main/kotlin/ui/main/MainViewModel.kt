@@ -20,10 +20,26 @@ class MainViewModel @Inject constructor(
         MainUiState(
             serverName = "",
             peers = emptyList(),
-            onStartServer = ::onStartServer,
-            onStopServer = ::onStopServer,
-            onStartDiscovery = ::onStartDiscovery,
-            onStopDiscovery = ::onStopDiscovery
+            onStartServer = {
+                viewModelScope.launch {
+                    peerServerService.start(Build.DEVICE)
+                }
+            },
+            onStopServer = {
+                viewModelScope.launch {
+                    peerServerService.stop()
+                }
+            },
+            onStartDiscovery = {
+                viewModelScope.launch {
+                    peerDiscoveryService.start()
+                }
+            },
+            onStopDiscovery = {
+                viewModelScope.launch {
+                    peerDiscoveryService.stop()
+                }
+            }
         )
     )
     val state: StateFlow<MainUiState> = _state
@@ -31,7 +47,9 @@ class MainViewModel @Inject constructor(
     init {
         combine(
             peerServerService.serviceFlow.map { it?.serviceName ?: "????" },
-            peerDiscoveryService.peersFlow.map { list -> list.map { it.toPeerUi() } }
+            peerDiscoveryService.peersFlow.map { list ->
+                list.map { it.toPeerUi() }
+            }
         ) { serviceName, peers ->
             _state.value = state.value.copy(
                 serverName = serviceName,
@@ -40,33 +58,9 @@ class MainViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    private fun onStartServer() {
-        viewModelScope.launch {
-            peerServerService.start(Build.DEVICE)
-        }
-    }
-
-    private fun onStopServer() {
-        viewModelScope.launch {
-            peerServerService.stop()
-        }
-    }
-
-    private fun onStartDiscovery() {
-        viewModelScope.launch {
-            peerDiscoveryService.start()
-        }
-    }
-
-    private fun onStopDiscovery() {
-        viewModelScope.launch {
-            peerDiscoveryService.stop()
-        }
-    }
-
     private fun Peer.toPeerUi() =
         PeerUi(id, name, onClick = {
-
+            // Just do it
         })
 }
 

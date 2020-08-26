@@ -68,9 +68,8 @@ fun Content(
 
         LazyColumnFor(state.peers) {
             Column(
-                modifier = Modifier
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     .clickable(onClick = it.onClick)
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Row(verticalGravity = Alignment.CenterVertically) {
                     Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
