@@ -45,9 +45,8 @@ class MainActivity : DaggerAppCompatActivity() {
 }
 
 @Composable
-fun Content(
-    state: MainUiState
-) {
+private fun Content(state: MainUiState) {
+
     Column(Modifier.fillMaxSize()) {
 
         Column(Modifier.padding(16.dp)) {

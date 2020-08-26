@@ -12,6 +12,7 @@ import com.vitaliykharchenko.intouch.service.nsd.NsdServiceType
 import com.vitaliykharchenko.intouch.service.nsd.description
 import com.vitaliykharchenko.intouch.service.server.ServerService
 import com.vitaliykharchenko.intouch.service.shared.ErrorDescription
+import com.vitaliykharchenko.intouch.service.wifidirect.WifiDirectService
 import com.vitaliykharchenko.intouch.shared.coroutines.DataFlow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -30,20 +31,24 @@ class PeerServerServiceImpl @Inject constructor(
     private val serviceType: NsdServiceType,
     private val nsdService: CoroutineNsdManager,
     private val serverService: ServerService,
-    private val errorService: ErrorService
+    private val errorService: ErrorService,
+    private val wifiDirectService: WifiDirectService
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
     override val serviceFlow = DataFlow<NsdServiceInfo?>(null)
 
-    override suspend fun start(name: String): Result<Unit, ErrorDescription> =
-        withContext(dispatcher) {
+    override suspend fun start(name: String): Result<Unit, ErrorDescription> {
+        wifiDirectService.start()
+
+        return withContext(dispatcher) {
             startInternal(name)
                 .onSuccess { service ->
                     serviceFlow.offer(service)
                 }
                 .map { Unit }
         }
+    }
 
     private suspend fun startInternal(name: String): Result<NsdServiceInfo, ErrorDescription> {
         val port = serverService.start()
@@ -62,6 +67,8 @@ class PeerServerServiceImpl @Inject constructor(
     }
 
     override suspend fun stop() {
+        wifiDirectService.stop()
+
         withContext(dispatcher) {
             serviceFlow.first()?.let { service ->
                 nsdService.unregisterService(service)
