@@ -2,18 +2,28 @@ package com.vitaliykharchenko.intouch.ui.main
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.ui.tooling.preview.Preview
+import com.vitaliykharchenko.intouch.R
+import com.vitaliykharchenko.intouch.model.Peer
+import com.vitaliykharchenko.intouch.model.PeerId
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
@@ -26,53 +36,52 @@ class MainActivity : DaggerAppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val state = viewModel.state.collectAsState()
-            Content(state.value)
+            DarkTheme {
+                Surface(color = MaterialTheme.colors.background) {
+                    Content(state.value)
+                }
+            }
         }
-
-//        val peerAdapter = PeerAdapter(
-//            onPeerMenuClick = { peer, view ->
-//                val popup = PopupMenu(this@MainActivity, view, Gravity.END)
-//                popup.menuInflater.inflate(R.menu.peer, popup.menu)
-//                popup.setOnMenuItemClickListener { true }
-//                popup.show()
-//            }
-//        )
-//        peers.setController(peerAdapter)
-
-//        viewModel.serverLiveData.observe(this, Observer { service ->
-//            this.name.text = service
-//        })
-//        viewModel.peersLiveData.observe(this, Observer { peers ->
-//            peerAdapter.setData(peers)
-//        })
     }
-
-//    private fun showPopup(view: View) {
-//        val popup = PopupMenu(this@MainActivity, view, Gravity.END)
-//        popup.menuInflater.inflate(R.menu.peer, popup.menu)
-//        popup.setOnMenuItemClickListener { true }
-//        popup.show()
-//    }
 }
 
 @Composable
 fun Content(
     state: MainUiState
 ) {
-    val n = 4
+    Column(Modifier.fillMaxSize()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(text = state.serverName)
 
-    Column(Modifier.padding(8.dp)) {
-        Text(text = state.serverName)
-
-        Row(Modifier.padding(top = 8.dp)) {
-            Button(onClick = state.onStartServer) {
-                Text(text = "Start server $n")
+            Row(Modifier.padding(top = 8.dp)) {
+                Button(onClick = state.onStartServer) {
+                    Text(text = "Start server")
+                }
+                Button(
+                    onClick = state.onStopServer,
+                    modifier = Modifier.padding(start = 16.dp)
+                ) {
+                    Text(text = "Stop server")
+                }
             }
-            Button(
-                onClick = state.onStopServer,
-                modifier = Modifier.padding(start = 8.dp)
+        }
+
+        val peers = listOf(
+            PeerUi(PeerId("1"), name = "Device 1") { },
+            PeerUi(PeerId("2"), name = "Device 2") { }
+        )
+
+        LazyColumnFor(peers) {
+            Column(
+                modifier = Modifier
+                    .clickable(onClick = it.onClick)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                Text(text = "Stop server")
+                Row(verticalGravity = Alignment.CenterVertically) {
+                    Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
+                    Image(asset = vectorResource(R.drawable.ic_item_menu_24))
+                }
+                Divider()
             }
         }
     }

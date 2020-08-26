@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
+import com.vitaliykharchenko.intouch.model.PeerId
 import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
 import com.vitaliykharchenko.intouch.service.PeerServerService
 import kotlinx.coroutines.flow.*
@@ -30,7 +31,7 @@ class MainViewModel @Inject constructor(
     init {
         combine(
             peerServerService.serviceFlow.map { it?.serviceName ?: "????" },
-            peerDiscoveryService.peersFlow
+            peerDiscoveryService.peersFlow.map { list -> list.map { it.toPeerUi() } }
         ) { serviceName, peers ->
             _state.value = state.value.copy(
                 serverName = serviceName,
@@ -62,15 +63,26 @@ class MainViewModel @Inject constructor(
             peerDiscoveryService.stop()
         }
     }
+
+    private fun Peer.toPeerUi() =
+        PeerUi(id, name, onClick = {
+
+        })
 }
 
 data class MainUiState(
     val serverName: String,
-    val peers: List<Peer>,
+    val peers: List<PeerUi>,
 
     val onStartServer: () -> Unit,
     val onStopServer: () -> Unit,
 
     val onStartDiscovery: () -> Unit,
     val onStopDiscovery: () -> Unit
+)
+
+data class PeerUi(
+    val id: PeerId,
+    val name: String,
+    val onClick: () -> Unit
 )

@@ -76,14 +76,18 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.core:core-ktx:1.3.1")
 
+    implementation("androidx.compose.foundation:foundation:$composeVer")
     implementation("androidx.compose.foundation:foundation-layout:$composeVer")
+    implementation("androidx.compose.ui:ui:$composeVer")
     implementation("androidx.compose.material:material:$composeVer")
+    implementation("androidx.compose.material:material-icons-extended:$composeVer")
+    implementation("androidx.compose.animation:animation:$composeVer")
     implementation("androidx.ui:ui-tooling:$composeVer")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     implementation("androidx.fragment:fragment-ktx:1.2.5")
+//    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
+//    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
+//    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
 
     val coroutinesVersion = "1.3.9"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
@@ -94,10 +98,6 @@ dependencies {
     implementation("com.google.dagger:dagger-android-support:$daggerVersion")
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
-
-    val epoxyVersion = "3.9.0"
-    implementation("com.airbnb.android:epoxy:$epoxyVersion")
-    kapt("com.airbnb.android:epoxy-processor:$epoxyVersion")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.8")
 
