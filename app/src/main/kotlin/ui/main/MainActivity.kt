@@ -43,24 +43,6 @@ class MainActivity : DaggerAppCompatActivity() {
 //        viewModel.peersLiveData.observe(this, Observer { peers ->
 //            peerAdapter.setData(peers)
 //        })
-//
-//        startServer.setOnClickListener {
-//            viewModel.startServer()
-//        }
-//        stopServer.setOnClickListener {
-//            viewModel.stopServer()
-//        }
-//
-//        startDiscover.setOnClickListener {
-//            viewModel.startDiscovery()
-//        }
-//        stopDiscover.setOnClickListener {
-//            viewModel.stopDiscovery()
-//        }
-//
-//        supportFragmentManager.commit {
-//            add(MainFragment(), null)
-//        }
     }
 
 //    private fun showPopup(view: View) {
@@ -75,16 +57,16 @@ class MainActivity : DaggerAppCompatActivity() {
 fun Content(
     viewModel: MainViewModel
 ) {
-    val server = viewModel.serverFlow.collectAsState(initial = "???")
+    val state = viewModel.state.collectAsState()
 
     Column(Modifier.padding(8.dp)) {
-        Text(text = server.value)
+        Text(text = state.value.serverName)
         Row(Modifier.padding(top = 8.dp)) {
-            Button(onClick = viewModel::startServer) {
+            Button(onClick = state.value.onStartServer) {
                 Text(text = "Start server")
             }
             Button(
-                onClick = viewModel::stopServer,
+                onClick = state.value.onStopServer,
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(text = "Stop server")

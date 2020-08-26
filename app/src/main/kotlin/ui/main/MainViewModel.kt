@@ -1,17 +1,12 @@
 package com.vitaliykharchenko.intouch.ui.main
 
 import android.os.Build
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
 import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
 import com.vitaliykharchenko.intouch.service.PeerServerService
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,37 +14,63 @@ class MainViewModel @Inject constructor(
     private val peerServerService: PeerServerService,
     private val peerDiscoveryService: PeerDiscoveryService
 ) : ViewModel() {
-    val serverFlow: Flow<String> = flow {
-        peerServerService.serviceFlow
-            .map { it?.serviceName ?: "????" }
-            .collect(::emit)
-    }
-    val peersLiveData: LiveData<List<Peer>> = liveData {
-        peerDiscoveryService.peersFlow
-            .collect(::emit)
+
+    private val _state = MutableStateFlow(
+        MainUiState(
+            serverName = "",
+            peers = emptyList(),
+            onStartServer = ::onStartServer,
+            onStopServer = ::onStopServer,
+            onStartDiscovery = ::onStartDiscovery,
+            onStopDiscovery = ::onStopDiscovery
+        )
+    )
+    val state: StateFlow<MainUiState> = _state
+
+    init {
+        combine(
+            peerServerService.serviceFlow.map { it?.serviceName ?: "????" },
+            peerDiscoveryService.peersFlow
+        ) { serviceName, peers ->
+            _state.value = state.value.copy(
+                serverName = serviceName,
+                peers = peers
+            )
+        }.launchIn(viewModelScope)
     }
 
-    fun startServer() {
+    private fun onStartServer() {
         viewModelScope.launch {
             peerServerService.start(Build.DEVICE)
         }
     }
 
-    fun stopServer() {
+    private fun onStopServer() {
         viewModelScope.launch {
             peerServerService.stop()
         }
     }
 
-    fun startDiscovery() {
+    private fun onStartDiscovery() {
         viewModelScope.launch {
             peerDiscoveryService.start()
         }
     }
 
-    fun stopDiscovery() {
+    private fun onStopDiscovery() {
         viewModelScope.launch {
             peerDiscoveryService.stop()
         }
     }
 }
+
+data class MainUiState(
+    val serverName: String,
+    val peers: List<Peer>,
+
+    val onStartServer: () -> Unit,
+    val onStopServer: () -> Unit,
+
+    val onStartDiscovery: () -> Unit,
+    val onStopDiscovery: () -> Unit
+)
