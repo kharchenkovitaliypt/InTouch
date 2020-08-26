@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.ui.tooling.preview.Preview
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
@@ -24,7 +25,8 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Content(viewModel)
+            val state = viewModel.state.collectAsState()
+            Content(state.value)
         }
 
 //        val peerAdapter = PeerAdapter(
@@ -55,18 +57,19 @@ class MainActivity : DaggerAppCompatActivity() {
 
 @Composable
 fun Content(
-    viewModel: MainViewModel
+    state: MainUiState
 ) {
-    val state = viewModel.state.collectAsState()
+    val n = 4
 
     Column(Modifier.padding(8.dp)) {
-        Text(text = state.value.serverName)
+        Text(text = state.serverName)
+
         Row(Modifier.padding(top = 8.dp)) {
-            Button(onClick = state.value.onStartServer) {
-                Text(text = "Start server")
+            Button(onClick = state.onStartServer) {
+                Text(text = "Start server $n")
             }
             Button(
-                onClick = state.value.onStopServer,
+                onClick = state.onStopServer,
                 modifier = Modifier.padding(start = 8.dp)
             ) {
                 Text(text = "Stop server")
