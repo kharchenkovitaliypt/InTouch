@@ -30,7 +30,9 @@ android {
     kotlinOptions {
         freeCompilerArgs = listOf(
             "-XXLanguage:+InlineClasses",
-            "-Xopt-in=kotlin.RequiresOptIn"
+            "-Xopt-in=kotlin.RequiresOptIn",
+            "-Xallow-jvm-ir-dependencies",
+            "-Xskip-prerelease-check"
         )
         jvmTarget = "1.8"
     }
@@ -47,9 +49,7 @@ android {
         kotlinCompilerVersion = "1.4.0"
     }
 }
-androidExtensions {
-    isExperimental = true
-}
+
 kotlin {
     sourceSets.all {
         languageSettings.apply {
@@ -61,16 +61,14 @@ kotlin {
         }
     }
 }
+
 kapt {
     correctErrorTypes = true
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check")
-    }
-}
+//androidExtensions {
+//    isExperimental = true
+//}
 
 dependencies {
     implementation("androidx.appcompat:appcompat:1.2.0")
@@ -85,7 +83,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     implementation("androidx.fragment:fragment-ktx:1.2.5")
 
-    val coroutinesVersion = "1.3.5"
+    val coroutinesVersion = "1.3.9"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
 
@@ -99,7 +97,7 @@ dependencies {
     implementation("com.airbnb.android:epoxy:$epoxyVersion")
     kapt("com.airbnb.android:epoxy-processor:$epoxyVersion")
 
-    api("com.michael-bull.kotlin-result:kotlin-result:1.1.6")
+    implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.8")
 
     testImplementation("junit:junit:4.13")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
