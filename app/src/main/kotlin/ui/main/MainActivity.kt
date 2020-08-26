@@ -35,10 +35,9 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val state = viewModel.state.collectAsState()
             DarkTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    Content(state.value)
+                    Content(viewModel.state.collectAsState().value)
                 }
             }
         }
@@ -50,6 +49,7 @@ fun Content(
     state: MainUiState
 ) {
     Column(Modifier.fillMaxSize()) {
+
         Column(Modifier.padding(16.dp)) {
             Text(text = state.serverName)
 
@@ -66,12 +66,7 @@ fun Content(
             }
         }
 
-        val peers = listOf(
-            PeerUi(PeerId("1"), name = "Device 1") { },
-            PeerUi(PeerId("2"), name = "Device 2") { }
-        )
-
-        LazyColumnFor(peers) {
+        LazyColumnFor(state.peers) {
             Column(
                 modifier = Modifier
                     .clickable(onClick = it.onClick)
