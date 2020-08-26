@@ -48,6 +48,8 @@ android {
         kotlinCompilerExtensionVersion = composeVer
         kotlinCompilerVersion = "1.4.0"
     }
+
+    sourceSets["main"].java.srcDir("src/main/kotlin")
 }
 
 kotlin {
