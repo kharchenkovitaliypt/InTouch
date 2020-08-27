@@ -31,16 +31,13 @@ class PeerServerServiceImpl @Inject constructor(
     private val serviceType: NsdServiceType,
     private val nsdService: CoroutineNsdManager,
     private val serverService: ServerService,
-    private val errorService: ErrorService,
-    private val wifiDirectService: WifiDirectService
+    private val errorService: ErrorService
 ) : PeerServerService {
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 
     override val serviceFlow = DataFlow<NsdServiceInfo?>(null)
 
     override suspend fun start(name: String): Result<Unit, ErrorDescription> {
-        wifiDirectService.start()
-
         return withContext(dispatcher) {
             startInternal(name)
                 .onSuccess { service ->
@@ -67,8 +64,6 @@ class PeerServerServiceImpl @Inject constructor(
     }
 
     override suspend fun stop() {
-        wifiDirectService.stop()
-
         withContext(dispatcher) {
             serviceFlow.first()?.let { service ->
                 nsdService.unregisterService(service)

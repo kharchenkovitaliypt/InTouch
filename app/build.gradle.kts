@@ -5,16 +5,16 @@ plugins {
     kotlin("kapt")
 }
 
-val composeVer = "0.1.0-dev17"
+val composeVer = "1.0.0-alpha01"
 
 android {
-    compileSdkVersion(30)
-    buildToolsVersion("30.0.2")
+    compileSdkVersion(29)
+    buildToolsVersion("29.0.2")
 
     defaultConfig {
         applicationId = "com.vitaliykharchenko.intouch"
         minSdkVersion(21)
-        targetSdkVersion(30)
+        targetSdkVersion(29)
         versionCode = 1
         versionName = "1.0"
 
@@ -30,11 +30,12 @@ android {
     kotlinOptions {
         freeCompilerArgs = listOf(
             "-XXLanguage:+InlineClasses",
-            "-Xopt-in=kotlin.RequiresOptIn",
-            "-Xallow-jvm-ir-dependencies",
-            "-Xskip-prerelease-check"
+            "-Xopt-in=kotlin.RequiresOptIn"
+//            "-Xallow-jvm-ir-dependencies",
+//            "-Xskip-prerelease-check"
         )
         jvmTarget = "1.8"
+        useIR = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

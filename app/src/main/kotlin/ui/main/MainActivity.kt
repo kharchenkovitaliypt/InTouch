@@ -63,18 +63,28 @@ private fun Content(state: MainUiState) {
                     Text(text = "Stop server")
                 }
             }
+
+            Row(Modifier.padding(top = 16.dp)) {
+                Button(onClick = state.onStartDiscovery) {
+                    Text(text = "Start discovery")
+                }
+                Button(
+                    onClick = state.onStopDiscovery,
+                    modifier = Modifier.padding(start = 16.dp)
+                ) {
+                    Text(text = "Stop discovery")
+                }
+            }
         }
 
         LazyColumnFor(state.peers) {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clickable(onClick = it.onClick)
+            Row(
+                modifier = Modifier.clickable(onClick = it.onClick)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalGravity = Alignment.CenterVertically
             ) {
-                Row(verticalGravity = Alignment.CenterVertically) {
-                    Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
-                    Image(asset = vectorResource(R.drawable.ic_item_menu_24))
-                }
-                Divider()
+                Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
+                Image(asset = vectorResource(R.drawable.ic_item_menu_24))
             }
         }
     }

@@ -23,7 +23,7 @@ object ServiceModule {
     @Provides fun peerServerService(service: PeerServerServiceImpl): PeerServerService = service
 
     @AppScope
-    @Provides fun peerDiscoveryService(service: PeerDiscoveryServiceImpl): PeerDiscoveryService = service
+    @Provides fun peerDiscoveryService(service: WifiDirectService): PeerDiscoveryService = service
 
     @AppScope
     @Provides fun wifiDirectService(context: Context) = WifiDirectService(context)
