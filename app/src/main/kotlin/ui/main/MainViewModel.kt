@@ -4,22 +4,30 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.model.PeerId
 import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
 import com.vitaliykharchenko.intouch.service.PeerServerService
-import kotlinx.coroutines.flow.*
+import com.vitaliykharchenko.intouch.service.PeersState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val peerServerService: PeerServerService,
-    private val peerDiscoveryService: PeerDiscoveryService
+    peerDiscoveryService: PeerDiscoveryService
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        MainUiState(
+    private val isPeersDiscoveryEnabledFlow = MutableStateFlow(false)
+
+    private val _uiFlow = MutableStateFlow(
+        MainUi(
             serverName = "",
-            peers = emptyList(),
+            peersState = PeersUiState.Idle,
             onStartServer = {
                 viewModelScope.launch {
                     peerServerService.start(Build.DEVICE)
@@ -31,52 +39,43 @@ class MainViewModel @Inject constructor(
                 }
             },
             onStartDiscovery = {
-                viewModelScope.launch {
-                    peerDiscoveryService.start()
-                }
+                isPeersDiscoveryEnabledFlow.value = true
             },
             onStopDiscovery = {
-                viewModelScope.launch {
-                    peerDiscoveryService.stop()
-                }
+                isPeersDiscoveryEnabledFlow.value = false
             }
         )
     )
-    val state: StateFlow<MainUiState> = _state
+    val uiFlow: StateFlow<MainUi> = _uiFlow
 
     init {
         combine(
             peerServerService.serviceFlow.map { it?.serviceName ?: "????" },
-            peerDiscoveryService.peersFlow.map { list ->
-                list.map { it.toPeerUi() }
+            isPeersDiscoveryEnabledFlow.flatMapLatest { enabled ->
+                if (enabled) {
+                    peerDiscoveryService.getPeersStateFlow()
+                        .map { it.asPeersUiState() }
+                } else {
+                    flowOf(PeersUiState.Idle)
+                }
             }
-        ) { serviceName, peers ->
-            _state.value = state.value.copy(
+        ) { serviceName, peersState ->
+            _uiFlow.value = _uiFlow.value.copy(
                 serverName = serviceName,
-                peers = peers
+                peersState = peersState
             )
         }.launchIn(viewModelScope)
     }
 
-    private fun Peer.toPeerUi() =
+    private fun PeersState.asPeersUiState(): PeersUiState =
+        when (this) {
+            is PeersState.Waiting -> PeersUiState.Waiting
+            is PeersState.Data -> PeersUiState.Data(this.peers.map { it.asPeerUi() })
+            is PeersState.Error -> PeersUiState.Error(this.desc)
+        }
+
+    private fun Peer.asPeerUi() =
         PeerUi(id, name, onClick = {
             // Just do it
         })
 }
-
-data class MainUiState(
-    val serverName: String,
-    val peers: List<PeerUi>,
-
-    val onStartServer: () -> Unit,
-    val onStopServer: () -> Unit,
-
-    val onStartDiscovery: () -> Unit,
-    val onStopDiscovery: () -> Unit
-)
-
-data class PeerUi(
-    val id: PeerId,
-    val name: String,
-    val onClick: () -> Unit
-)

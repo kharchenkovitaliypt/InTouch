@@ -3,27 +3,31 @@ package com.vitaliykharchenko.intouch.ui.main
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumnFor
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
-import androidx.ui.tooling.preview.Preview
 import com.vitaliykharchenko.intouch.R
-import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.model.PeerId
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
 
@@ -37,7 +41,7 @@ class MainActivity : DaggerAppCompatActivity() {
         setContent {
             DarkTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    Content(viewModel.state.collectAsState().value)
+                    MainView(viewModel.uiFlow.collectAsState().value)
                 }
             }
         }
@@ -45,7 +49,7 @@ class MainActivity : DaggerAppCompatActivity() {
 }
 
 @Composable
-private fun Content(state: MainUiState) {
+private fun MainView(state: MainUi) {
 
     Column(Modifier.fillMaxSize()) {
 
@@ -77,15 +81,44 @@ private fun Content(state: MainUiState) {
             }
         }
 
-        LazyColumnFor(state.peers) {
-            Row(
-                modifier = Modifier.clickable(onClick = it.onClick)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalGravity = Alignment.CenterVertically
-            ) {
-                Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
-                Image(asset = vectorResource(R.drawable.ic_item_menu_24))
+        Box(
+            modifier = Modifier
+                .padding(vertical = 16.dp)
+                .fillMaxWidth(),
+            gravity = ContentGravity.Center
+        ) {
+            when (state.peersState) {
+                is PeersUiState.Idle -> { /* Empty space */
+                }
+                is PeersUiState.Waiting -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.height(48.dp)
+                    )
+                }
+                is PeersUiState.Data -> {
+                    PeersView(state.peersState.peers)
+                }
+                is PeersUiState.Error -> {
+                    Text(
+                        text = state.peersState.desc,
+                        color = MaterialTheme.colors.error
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun PeersView(peers: List<PeerUi>) {
+    LazyColumnFor(peers) {
+        Row(
+            modifier = Modifier.clickable(onClick = it.onClick)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalGravity = Alignment.CenterVertically
+        ) {
+            Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
+            Image(asset = vectorResource(R.drawable.ic_item_menu_24))
         }
     }
 }
