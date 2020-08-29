@@ -20,9 +20,9 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.getOrElse
 import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.model.PeerId
 import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
 import com.vitaliykharchenko.intouch.service.PeersState
+import com.vitaliykharchenko.intouch.service.Permission
 import com.vitaliykharchenko.intouch.service.shared.ErrorDescription
 import com.vitaliykharchenko.intouch.shared.coroutines.job
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +40,9 @@ import android.net.wifi.p2p.WifiP2pManager.Channel as WifiChannel
 class WifiDirectService(private val context: Context) : PeerDiscoveryService {
 
     private val manager = context.getSystemService<WifiP2pManager>()!!
+
+    override val needPermissions: List<Permission>
+        get() = TODO("Not yet implemented")
 
     val isEnabledFlow: Flow<Boolean> = context.broadcastFlow(
         WIFI_P2P_STATE_CHANGED_ACTION to { intent ->
@@ -74,7 +77,7 @@ class WifiDirectService(private val context: Context) : PeerDiscoveryService {
             .map { deviceList -> deviceList.asPeerList() }
 
     private fun WifiP2pDeviceList.asPeerList(): List<Peer> =
-        deviceList.map { Peer(PeerId(it.deviceAddress), it.deviceName) }
+        deviceList.map { Peer(it.deviceAddress, it.deviceName) }
 }
 
 //      // Indicates the state of Wi-Fi P2P connectivity has changed.

@@ -4,7 +4,10 @@ import com.vitaliykharchenko.intouch.model.Peer
 import com.vitaliykharchenko.intouch.service.shared.ErrorDescription
 import kotlinx.coroutines.flow.Flow
 
+typealias Permission = String
+
 interface PeerDiscoveryService {
+    val needPermissions: List<Permission>
     suspend fun getPeersStateFlow(): Flow<PeersState>
 }
 

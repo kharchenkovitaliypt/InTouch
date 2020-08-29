@@ -1,6 +1,5 @@
 package com.vitaliykharchenko.intouch.ui.main
 
-import com.vitaliykharchenko.intouch.model.PeerId
 import com.vitaliykharchenko.intouch.service.shared.ErrorDescription
 
 data class MainUi(
@@ -22,7 +21,7 @@ sealed class PeersUiState {
 }
 
 data class PeerUi(
-    val id: PeerId,
+    val id: String,
     val name: String,
     val onClick: () -> Unit
 )

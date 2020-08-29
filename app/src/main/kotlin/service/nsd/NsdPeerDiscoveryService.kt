@@ -2,9 +2,9 @@ package com.vitaliykharchenko.intouch.service.nsd
 
 import android.net.nsd.NsdServiceInfo
 import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.model.PeerId
 import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
 import com.vitaliykharchenko.intouch.service.PeersState
+import com.vitaliykharchenko.intouch.service.Permission
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -12,6 +12,9 @@ class NsdPeerDiscoveryService @Inject constructor(
     private val serviceType: NsdServiceType,
     private val nsdService: CoroutineNsdManager
 ) : PeerDiscoveryService {
+
+    override val needPermissions: List<Permission>
+        get() = TODO("Not yet implemented")
 
     override suspend fun getPeersStateFlow(): Flow<PeersState> {
         TODO("Not yet implemented")
@@ -54,5 +57,5 @@ class NsdPeerDiscoveryService @Inject constructor(
 private fun NsdServiceInfo.toPeer() =
     Peer(id = getPeerId(), name = "$serviceName($host:$port)")
 
-private fun NsdServiceInfo.getPeerId() =
-    PeerId(serviceType + serviceName)
+private fun NsdServiceInfo.getPeerId(): String =
+    serviceType + serviceName

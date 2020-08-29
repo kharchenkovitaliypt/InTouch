@@ -100,6 +100,9 @@ dependencies {
     kapt("com.google.dagger:dagger-compiler:$daggerVersion")
     kapt("com.google.dagger:dagger-android-processor:$daggerVersion")
 
+    implementation("com.google.android.gms:play-services-nearby:17.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.3.9")
+
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.8")
 
     testImplementation("junit:junit:4.13")

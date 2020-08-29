@@ -2,6 +2,7 @@ package com.vitaliykharchenko.intouch.service
 
 import android.content.Context
 import com.vitaliykharchenko.intouch.di.AppScope
+import com.vitaliykharchenko.intouch.service.nearby.NearbyService
 import com.vitaliykharchenko.intouch.service.nsd.NsdModule
 import com.vitaliykharchenko.intouch.service.nsd.NsdPeerServerService
 import com.vitaliykharchenko.intouch.service.server.ServerService
@@ -21,11 +22,14 @@ object ServiceModule {
     @Provides fun errorService(): ErrorService = ErrorService()
 
     @AppScope
-    @Provides fun peerServerService(service: NsdPeerServerService): PeerServerService = service
+    @Provides fun nsdPeerServerService(service: NsdPeerServerService): PeerServerService = service
 
     @AppScope
-    @Provides fun peerDiscoveryService(service: WifiDirectService): PeerDiscoveryService = service
+    @Provides fun peerDiscoveryService(service: NearbyService): PeerDiscoveryService = service
 
     @AppScope
     @Provides fun wifiDirectService(context: Context) = WifiDirectService(context)
+
+    @AppScope
+    @Provides fun nearbyService(context: Context) = NearbyService(context)
 }
