@@ -7,8 +7,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.multibindings.IntoMap
 
-@Module
-interface MainModule {
+@Module interface MainModule {
     @ContributesAndroidInjector(modules = [ViewModelModule::class])
     fun contributesInjector(): MainActivity
 }

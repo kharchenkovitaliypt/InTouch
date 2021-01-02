@@ -2,22 +2,21 @@ package com.vitaliykharchenko.intouch.ui.main
 
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -85,7 +84,7 @@ private fun MainView(state: MainUi) {
             modifier = Modifier
                 .padding(vertical = 16.dp)
                 .fillMaxWidth(),
-            gravity = ContentGravity.Center
+            contentAlignment = Alignment.Center
         ) {
             when (state.peersState) {
                 is PeersUiState.Idle -> { /* Empty space */
@@ -111,14 +110,16 @@ private fun MainView(state: MainUi) {
 
 @Composable
 private fun PeersView(peers: List<PeerUi>) {
-    LazyColumnFor(peers) {
-        Row(
-            modifier = Modifier.clickable(onClick = it.onClick)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalGravity = Alignment.CenterVertically
-        ) {
-            Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
-            Image(asset = vectorResource(R.drawable.ic_item_menu_24))
+    LazyColumn {
+        items(peers) {
+            Row(
+                modifier = Modifier.clickable(onClick = it.onClick)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = it.name, modifier = Modifier.weight(1f), fontSize = 24.sp)
+                Image(imageVector = vectorResource(R.drawable.ic_item_menu_24))
+            }
         }
     }
 }
