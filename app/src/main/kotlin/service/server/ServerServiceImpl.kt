@@ -3,6 +3,7 @@ package com.vitaliykharchenko.intouch.service.server
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.vitaliykharchenko.intouch.di.AppScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -10,7 +11,9 @@ import java.net.ServerSocket
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
+@AppScope
 class ServerServiceImpl @Inject constructor() : ServerService {
+
     private val dispatcher: ExecutorCoroutineDispatcher =
         Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 

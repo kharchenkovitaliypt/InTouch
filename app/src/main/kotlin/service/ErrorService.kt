@@ -1,8 +1,10 @@
 package com.vitaliykharchenko.intouch.service
 
-import java.lang.Exception
+import com.vitaliykharchenko.intouch.di.AppScope
+import javax.inject.Inject
 
-class ErrorService {
+@AppScope
+class ErrorService @Inject constructor() {
 
     fun getDescription(exception: Exception): String {
         return exception.message ?: exception.toString()

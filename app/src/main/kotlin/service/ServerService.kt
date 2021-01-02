@@ -5,7 +5,7 @@ import com.github.michaelbull.result.Result
 import com.vitaliykharchenko.intouch.service.shared.ErrorDescription
 import kotlinx.coroutines.flow.Flow
 
-interface PeerServerService {
+interface ServerService {
     val serviceFlow: Flow<NsdServiceInfo?>
     suspend fun start(name: String): Result<Unit, ErrorDescription>
     suspend fun stop()

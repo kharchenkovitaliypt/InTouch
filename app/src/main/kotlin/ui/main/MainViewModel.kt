@@ -4,22 +4,21 @@ import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.service.PeerDiscoveryService
-import com.vitaliykharchenko.intouch.service.PeerServerService
+import com.vitaliykharchenko.intouch.service.DiscoveryService
 import com.vitaliykharchenko.intouch.service.PeersState
+import com.vitaliykharchenko.intouch.service.server.ServerServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
-    private val peerServerService: PeerServerService,
-    peerDiscoveryService: PeerDiscoveryService
+    private val serverService: ServerServiceImpl,
+    discoveryService: DiscoveryService
 ) : ViewModel() {
 
     private val isPeersDiscoveryEnabledFlow = MutableStateFlow(false)
@@ -30,12 +29,12 @@ class MainViewModel @Inject constructor(
             peersState = PeersUiState.Idle,
             onStartServer = {
                 viewModelScope.launch {
-                    peerServerService.start(Build.DEVICE)
+                    serverService.start(Build.DEVICE)
                 }
             },
             onStopServer = {
                 viewModelScope.launch {
-                    peerServerService.stop()
+                    serverService.stop()
                 }
             },
             onStartDiscovery = {
@@ -50,10 +49,10 @@ class MainViewModel @Inject constructor(
 
     init {
         combine(
-            peerServerService.serviceFlow.map { it?.serviceName ?: "????" },
+            serverService.serviceFlow.map { it?.serviceName ?: "????" },
             isPeersDiscoveryEnabledFlow.flatMapLatest { enabled ->
                 if (enabled) {
-                    peerDiscoveryService.getPeersStateFlow()
+                    discoveryService.getPeersStateFlow()
                         .map { it.asPeersUiState() }
                 } else {
                     flowOf(PeersUiState.Idle)

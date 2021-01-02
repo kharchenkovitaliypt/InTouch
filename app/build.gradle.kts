@@ -70,8 +70,10 @@ kapt {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.core:core-ktx:1.3.2")
+    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.activity:activity-ktx:1.2.0-rc01")
+    implementation("androidx.fragment:fragment-ktx:1.2.5")
 
     implementation("androidx.compose.foundation:foundation:$composeVer")
     implementation("androidx.compose.foundation:foundation-layout:$composeVer")
@@ -81,7 +83,6 @@ dependencies {
     implementation("androidx.compose.animation:animation:$composeVer")
 //    implementation("androidx.ui:ui-tooling:$composeVer")
 
-    implementation("androidx.fragment:fragment-ktx:1.2.5")
 //    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
 //    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")

@@ -18,8 +18,10 @@ private val DarkThemeColors = darkColors(
     primary = Red300,
     primaryVariant = Red700,
     onPrimary = Color.Black,
+
     secondary = Red300,
     onSecondary = Color.White,
+
     error = Red200
 )
 
