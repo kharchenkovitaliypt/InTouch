@@ -1,17 +1,18 @@
 package com.vitaliykharchenko.intouch.ui.main
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.setContent
 import androidx.lifecycle.ViewModelProvider
 import com.vitaliykharchenko.intouch.service.PermissionService
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
+
 
 class MainActivity : DaggerAppCompatActivity() {
 

@@ -1,6 +1,5 @@
 package com.vitaliykharchenko.intouch.ui.main
 
-import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
@@ -9,10 +8,6 @@ import com.vitaliykharchenko.intouch.service.PeersState
 import com.vitaliykharchenko.intouch.service.server.ServerServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +24,7 @@ class MainViewModel @Inject constructor(
             peersState = PeersUiState.Idle,
             onStartServer = {
                 viewModelScope.launch {
-                    serverService.start(Build.DEVICE)
+                    serverService.start()
                 }
             },
             onStopServer = {
@@ -48,22 +43,22 @@ class MainViewModel @Inject constructor(
     val uiFlow: StateFlow<MainUi> = _uiFlow
 
     init {
-        combine(
-            serverService.serviceFlow.map { it?.serviceName ?: "????" },
-            isPeersDiscoveryEnabledFlow.flatMapLatest { enabled ->
-                if (enabled) {
-                    discoveryService.getPeersStateFlow()
-                        .map { it.asPeersUiState() }
-                } else {
-                    flowOf(PeersUiState.Idle)
-                }
-            }
-        ) { serviceName, peersState ->
-            _uiFlow.value = _uiFlow.value.copy(
-                serverName = serviceName,
-                peersState = peersState
-            )
-        }.launchIn(viewModelScope)
+//        combine(
+//            serverService.serviceFlow.map { it?.serviceName ?: "????" },
+//            isPeersDiscoveryEnabledFlow.flatMapLatest { enabled ->
+//                if (enabled) {
+//                    discoveryService.getPeersStateFlow()
+//                        .map { it.asPeersUiState() }
+//                } else {
+//                    flowOf(PeersUiState.Idle)
+//                }
+//            }
+//        ) { serviceName, peersState ->
+//            _uiFlow.value = _uiFlow.value.copy(
+//                serverName = serviceName,
+//                peersState = peersState
+//            )
+//        }.launchIn(viewModelScope)
     }
 
     private fun PeersState.asPeersUiState(): PeersUiState =

@@ -1,23 +1,21 @@
-plugins {
+ plugins {
     id("com.android.application")
     kotlin("android")
     kotlin("kapt")
 }
 
-val kotlinVer = "1.4.21"
-val composeVer = "1.0.0-alpha09"
+val composeVer = "1.0.0-rc01"
 
 android {
-    compileSdkVersion(30)
-    buildToolsVersion("30.0.2")
+    compileSdk = 30
+    buildToolsVersion= "30.0.3"
 
     defaultConfig {
         applicationId = "com.vitaliykharchenko.intouch"
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdk = 21
+        targetSdk = 30
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -29,7 +27,6 @@ android {
 
     kotlinOptions {
         freeCompilerArgs = listOf(
-            "-XXLanguage:+InlineClasses",
             "-Xopt-in=kotlin.RequiresOptIn"
 //            "-Xallow-jvm-ir-dependencies",
 //            "-Xskip-prerelease-check"
@@ -47,7 +44,6 @@ android {
     }
     composeOptions {
         kotlinCompilerExtensionVersion = composeVer
-        kotlinCompilerVersion = kotlinVer
     }
 
     sourceSets["main"].java.srcDir("src/main/kotlin")
@@ -70,10 +66,10 @@ kapt {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.3.2")
-    implementation("androidx.appcompat:appcompat:1.2.0")
-    implementation("androidx.activity:activity-ktx:1.2.0-rc01")
-    implementation("androidx.fragment:fragment-ktx:1.2.5")
+    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.appcompat:appcompat:1.3.0")
+    implementation("androidx.activity:activity-ktx:1.3.0-rc01")
+    implementation("androidx.fragment:fragment-ktx:1.3.5")
 
     implementation("androidx.compose.foundation:foundation:$composeVer")
     implementation("androidx.compose.foundation:foundation-layout:$composeVer")
@@ -82,22 +78,24 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:$composeVer")
     implementation("androidx.compose.animation:animation:$composeVer")
 //    implementation("androidx.ui:ui-tooling:$composeVer")
+    implementation("androidx.activity:activity-compose:1.3.0-rc01")
+
 
 //    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
 //    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
 //    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
 
-    val coroutinesVer = "1.4.2"
+    val coroutinesVer = "1.5.0"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVer")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVer")
 
-    val daggerVer = "2.30.1"
+    val daggerVer = "2.37"
     implementation("com.google.dagger:dagger-android:$daggerVer")
     implementation("com.google.dagger:dagger-android-support:$daggerVer")
     kapt("com.google.dagger:dagger-compiler:$daggerVer")
     kapt("com.google.dagger:dagger-android-processor:$daggerVer")
 
-    implementation("com.google.android.gms:play-services-nearby:17.0.0")
+    implementation("com.google.android.gms:play-services-nearby:18.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.3.9")
 
     implementation("com.michael-bull.kotlin-result:kotlin-result:1.1.8")
@@ -109,6 +107,6 @@ dependencies {
     testImplementation("org.mockito:mockito-core:$mockitoVer")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.2")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 }

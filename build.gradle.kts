@@ -3,19 +3,18 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven ("https://dl.bintray.com/kotlin/kotlin-eap")
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.0-alpha03")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.21")
+        classpath("com.android.tools.build:gradle:7.0.0-beta05")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.10")
     }
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
         mavenCentral()
         maven ("https://dl.bintray.com/kotlin/kotlin-eap")
     }
