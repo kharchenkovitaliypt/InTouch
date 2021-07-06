@@ -2,7 +2,8 @@ package com.vitaliykharchenko.intouch.service.server
 
 import com.github.michaelbull.result.Result
 
-inline class Port(val value: Int)
+@JvmInline
+value class Port(val value: Int)
 
 interface ServerService {
 

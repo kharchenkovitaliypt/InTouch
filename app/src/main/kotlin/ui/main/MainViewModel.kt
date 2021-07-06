@@ -3,8 +3,8 @@ package com.vitaliykharchenko.intouch.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vitaliykharchenko.intouch.model.Peer
-import com.vitaliykharchenko.intouch.service.DiscoveryService
-import com.vitaliykharchenko.intouch.service.PeersState
+import com.vitaliykharchenko.intouch.service.nearby.NearbyService
+import com.vitaliykharchenko.intouch.service.nearby.PeersState
 import com.vitaliykharchenko.intouch.service.server.ServerServiceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val serverService: ServerServiceImpl,
-    discoveryService: DiscoveryService
+    nearbyService: NearbyService,
 ) : ViewModel() {
 
     private val isPeersDiscoveryEnabledFlow = MutableStateFlow(false)

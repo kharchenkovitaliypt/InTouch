@@ -7,12 +7,10 @@ import androidx.activity.viewModels
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModelProvider
 import com.vitaliykharchenko.intouch.service.PermissionService
 import dagger.android.support.DaggerAppCompatActivity
 import javax.inject.Inject
-
 
 class MainActivity : DaggerAppCompatActivity() {
 
@@ -33,13 +31,11 @@ class MainActivity : DaggerAppCompatActivity() {
         setContent {
             DarkTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    val prevState = remember { 0 }
                     val state = viewModel.uiFlow.collectAsState().value
                     MainView(state)
                 }
             }
         }
-        requestPermissions
     }
 
     override fun onRequestPermissionsResult(
